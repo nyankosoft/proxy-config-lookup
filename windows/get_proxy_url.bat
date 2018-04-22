@@ -73,10 +73,11 @@ REM Print the proxy URL to stdout
 if not "%auto_config_url_line:~4,13%"=="AutoConfigURL" (
     echo PAC script not detected
 
-    
-    for /f "delims=" %%A in ('reg query %reg_internet_settings% /v ProxyEnable 2>&1') do set "is_proxy_enabled=%%A"
+    set is_proxy_enabled=123345456567567
+    reg query %reg_internet_settings% /v ProxyEnable > proxy_enable.txt 2>&1
+    for /f "usebackq delims=" %%a in (`echo qwertypoiu`) do set is_proxy_enabled=%%a
 
-    echo %is_proxy_enabled%
+    echo "%is_proxy_enabled%"
 REM reg query %reg_internet_settings% | find /i "proxyserver"
 )
 
