@@ -45,9 +45,8 @@ reg query %reg_internet_settings% /v AutoConfigURL > pac_script_url.txt 2>&1
 :: 1.1.2 Extract the third line from the text file.
 ::     The third line has the proxy URL and it typically looks like this:
 ::     "    AutoConfigURL    REG_SZ    http://www.mycompany.com/pac/intranet.pac"
-set "lineNr=3"
-set /a lineNr-=1
-for /f "usebackq delims=" %%a in (`more +%lineNr% pac_script_url.txt`) DO (
+:: Note that 'more +2' ensures that the more command prints up to the third line of the text file.
+for /f "usebackq delims=" %%a in (`more +2 pac_script_url.txt`) DO (
   set auto_config_url_line=%%a
   break
 )
