@@ -52,11 +52,13 @@ for /f "usebackq delims=" %%a in (`more +2 pac_script_url.txt`) DO (
 )
 
 if "%auto_config_url_line:~4,13%"=="AutoConfigURL" (
-    echo PAC script detected
+REM echo PAC script detected
 
-    set pac_url=%auto_config_url_line:~31%
-    echo PAC script URL: %pac_url%
-    %curl_path% -s -o script.pac %pac_url%
+REM echo %auto_config_url_line:~31%
+
+    set pac_url=!auto_config_url_line:~31!
+REM echo pac_url is !pac_url!
+    %curl_path% -s -o script.pac !pac_url!
 
 REM 1.2. Create a JS script from the PAC script
 REM 1.2.1 Define the pac script function(s)
@@ -67,19 +69,40 @@ REM 1.2.2 Append the PAC script
 REM 1.2.3 Append the main function call.
 
 REM Print the proxy URL to stdout
+    echo "TODO: Print nothing if the output is DIRECT and trim 'PROXY' if the output is 'PROXY (proxy URL)'"
     %triflejs_path% pac.js
 )
 
 if not "%auto_config_url_line:~4,13%"=="AutoConfigURL" (
-    echo PAC script not detected
+REM echo PAC script not detected
 
-    set is_proxy_enabled=123345456567567
+    set is_proxy_enabled=
     reg query %reg_internet_settings% /v ProxyEnable > proxy_enable.txt 2>&1
-    for /f "usebackq delims=" %%a in (`echo qwertypoiu`) do set is_proxy_enabled=%%a
+    for /f "usebackq delims=" %%a in (`more +2 proxy_enable.txt`) do set is_proxy_enabled=%%a
 
-    echo "%is_proxy_enabled%"
+REM echo "!is_proxy_enabled:~32!"
+	set is_enabled=!is_proxy_enabled:~32!
 REM reg query %reg_internet_settings% | find /i "proxyserver"
 )
+
+if "!is_enabled!"=="0x0" (
+REM echo Proxy is likely NOT enabled
+	exit /b
+)
+
+if "!is_enabled!"=="0x1" (
+REM echo Proxy is likely enabled
+
+REM TODO: See if the given URL matches any of the patterns in the proxy bypass list
+
+    reg query %reg_internet_settings% /v ProxyServer > proxy_servers.txt 2>&1
+    for /f "usebackq delims=" %%a in (`more +2 proxy_servers.txt`) do set proxy_url_line=%%a
+	set proxy_urls=!proxy_url_line:~29!
+	echo "TODO: split the string below by ';' and pick up the right proxy for the requested URL"
+	echo !proxy_urls!
+)
+
+
 
 REM Clean up; delete temporary files.
 :: del script.pac
